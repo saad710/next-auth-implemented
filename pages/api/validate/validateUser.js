@@ -13,17 +13,17 @@ const handler = async (req, res) => {
       if(email && password){
         try {
             const user = await User.findOne({ email: req.body.email });
-            !user && res.status(404).json("user not found");
+            !user && res.status(404).json({ok:false,status:"user not found"});
          
         
             const validPassword = await bcrypt.compare(req.body.password, user.password)
-            !validPassword && res.status(400).json("wrong password")
+            !validPassword && res.status(400).json({ok:false,status:"wrong password"})
         
             // const token = jsonwebtoken.sign({ id: user._id }, process.env.secret, {
             //   expiresIn: 86400 // expires in 24 hours
             // });
             // res.status(200).json({ auth: true, token: token })
-            res.status(200).json({ auth: true, id:user._id , email:user.email,name:user.username })
+            res.status(200).json({ ok: true, id:user._id , email:user.email,name:user.username })
           } catch (err) {
             res.status(500).json(err)
           }
