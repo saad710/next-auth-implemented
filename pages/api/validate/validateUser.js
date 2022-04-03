@@ -13,6 +13,7 @@ const handler = async (req, res) => {
       if(email && password){
         try {
             const user = await User.findOne({ email: req.body.email });
+            // console.log(user)
             !user && res.status(404).json({ok:false,status:"user not found"});
          
         
@@ -24,6 +25,7 @@ const handler = async (req, res) => {
             // });
             // res.status(200).json({ auth: true, token: token })
             res.status(200).json({ ok: true, id:user._id , email:user.email,name:user.username })
+            // console.log(res)
           } catch (err) {
             res.status(500).json(err)
           }

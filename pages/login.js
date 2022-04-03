@@ -1,12 +1,13 @@
-import React from 'react';
+import React,{ useState }  from 'react';
 import { useForm } from "react-hook-form";
-import { useState } from 'react/cjs/react.development';
 import axios from "axios";
 import Cookies from "js-cookie";
 import { signIn,signOut } from "next-auth/react"
+import { useRouter } from "next/router";
 
 const Login = () => {
     const { register, handleSubmit, watch, formState: { errors } } = useForm();
+    const router = useRouter()
 
     // console.log(Cookies.get("next-auth.session-token"))
     const [error, setError] = useState(null);
@@ -33,9 +34,10 @@ const Login = () => {
                       signIn("credentials", {
                   email: response.data.email,
                   name: response.data.name,
-                  record_id: response.data.id,
+                  id: response.data.id,
                   // remember: data.remember,
                 });
+                router.push('/dashboard')
           }
         })
         .catch(error => {
@@ -110,7 +112,7 @@ const Login = () => {
                 <input type="password" name="password" {...register("password")}/>
                 <button type="submit">Submit</button>
 
-                <button onClick={() => 
+                {/* <button onClick={() => 
                 {
                   try {
                     signOut()
@@ -119,7 +121,7 @@ const Login = () => {
                     console.log(err)
                   }
                 }
-                  }>Sign out</button>
+                  }>Sign out</button> */}
             </form>
         </div>
     );

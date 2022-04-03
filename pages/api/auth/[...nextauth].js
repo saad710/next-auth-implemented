@@ -1,19 +1,23 @@
+// import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
+// import NextAuth from 'next-auth';
+// import CredentialsProvider from 'next-auth/providers/credentials';
+// import clientPromise from "../../../src/lib/mongodb";
 import NextAuth from "next-auth"
 import { MongoDBAdapter } from "@next-auth/mongodb-adapter"
 import clientPromise from "../../../lib/mongodb"
 import CredentialsProvider from 'next-auth/providers/credentials';
 
-// For more information on each option (and a full list of options) go to
-// https://next-auth.js.org/configuration/options
 export default NextAuth({
+  secret: process.env.SECRET,
   adapter: MongoDBAdapter(clientPromise),
   providers: [
     CredentialsProvider({
-      // The name to display on the sign in form (e.g. 'Sign in with...')
+      // The name to display on the sign in form (e.g. "Sign in with...")
       name: "Credentials",
       // The credentials is used to generate a suitable form on the sign in page.
       // You can specify whatever fields you are expecting to be submitted.
       // e.g. domain, username, password, 2FA token, etc.
+      // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
         email: {
           label: "Email",
@@ -37,28 +41,23 @@ export default NextAuth({
         },
       },
       async authorize(credentials, req) {
-        //Access token
-        // const getAccessToken = await axios.get(process.env.ACCESSTOKEN_URL);
-
-        // const responseForGetPhoto = await axios({
-        //   method: "get",
-        //   headers: {
-        //     Authorization: getAccessToken.data.access_token,
-        //   },
-        //   responseType: "arraybuffer",
-        //   url: `https://www.zohoapis.com/crm/v2.1/Portal_Users/${credentials.record_id}/photo`,
-        // });
-
-        return {
-          name: credentials.name,
-          email: credentials.email,
-          remember: credentials.remember,
-          record_id: credentials.record_id,
-        };
-      },
-    }),
+        console.log(credentials)
+        // Add logic here to look up the user from the credentials supplied
+        const user = { id: credentials.id, name: credentials.name, email: credentials.email }
+        console.log(user)
+  
+        if (user) {
+          // Any object returned will be saved in `user` property of the JWT
+          return user
+        } else {
+          // If you return null then an error will be displayed advising the user to check their details.
+          return null
+  
+          // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
+        }
+      }
+    })
   ],
-//   secret: process.env.AUTH_SECRET,
   jwt: {
     secret: process.env.SECRET,
   },
@@ -76,45 +75,6 @@ export default NextAuth({
     // // Note: This option is ignored if using JSON Web Tokens
     // updateAge: 24 * 60 * 60, // 24 hours
   },
-  // callbacks: {
-  //   async redirect(url, baseUrl) {
-  //     // console.log("REDIRECT", url, baseUrl);
-  //     return baseUrl;
-  //   },
-  //   async session(session, token) {
-  
-  //     console.log({ session, token });
-
-  //     if (token) {
-  //       session.exp = token.expire;
-  //       // session.credentials = token.credentials
-  //       session.user.id = token.id;
-  //       // session.remember = token.remember;
-  //     }
-  //     // console.log("SESSION", session, "TOKEN", token);
-
-  //     return session;
-  //   },
-  //   async jwt(token, user, account, profile, isNewUser) {
-    
-  //     // Initial sign in
-  //     if (account && user) {
-  //       if (user.remember == "false" && account.type == "credentials") {
-  //         token.expire = Date.now() + 2 * 10000;
-  //         // token.credentials = true
-  //         token.remember = false;
-  //         token.id = user.id;
-  //       } else {
-  //         token.remember = true;
-  //         token.id = user.id;
-  //       }
-  //     }
-  //     return {
-  //       ...token,
-  //       exp: token.expire ? token.expire : token.exp,
-  //     };
-  //   },
-  // },
   callbacks: {
     async redirect(url, baseUrl) {
       // console.log("REDIRECT", url, baseUrl);
@@ -130,10 +90,14 @@ export default NextAuth({
     },
   
     session: async ({ session, token, user }) => {
-      console.log('### SESSION CALLBACK ###')
-      console.log('session: ', session)
-      console.log('user: ', token)
-      console.log('user: ', user)
+      // console.log('### SESSION CALLBACK ###')
+      // console.log('session: ', session)
+      // console.log('user: ', token)
+      // console.log('user: ', user)
+      if(token){
+        session.user.id = token.sub;
+      }
+      console.log("sss",session)
 
       return session;
     }

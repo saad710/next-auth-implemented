@@ -8,6 +8,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@babel/runtime": "^7.17.8",
     "@next-auth/mongodb-adapter": "^1.0.3",
     "axios": "^0.26.1",
     "bcrypt": "^5.0.1",
